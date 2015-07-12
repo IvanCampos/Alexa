@@ -1,0 +1,47 @@
+exports.handler = function( event, context ) {
+    
+    var http = require( 'http' );
+ 
+    var url = 'http://api.coindesk.com/v1/bpi/currentprice.json';
+
+    http.get( url, function( response ) {
+        
+        var data = '';
+        
+        response.on( 'data', function( x ) { data += x; } );
+
+        response.on( 'end', function() {
+
+            var json = JSON.parse( data );
+
+            var text = 'The price of bitcoin is $';
+
+            var quote = parseFloat(json.bpi.USD.rate).toFixed(2);
+            text += quote;
+            
+            output( text, context );
+        
+        } );
+        
+    } );
+    
+};
+    
+function output( text, context ) {
+
+    var response = {
+        outputSpeech: {
+            type: "PlainText",
+            text: text
+        },
+        card: {
+            type: "Simple",
+            title: "Bitcoin",
+            content: text
+        },
+        shouldEndSession: true
+    };
+    
+    context.succeed( { response: response } );
+    
+}
