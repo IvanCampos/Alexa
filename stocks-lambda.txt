@@ -1,0 +1,57 @@
+exports.handler = function( event, context ) {
+    
+    var stocks = [ 'AAPL', 'GOOGL', 'TSLA', 'YHOO', 'BAC', 'PANW'];
+
+    var http = require( 'http' );
+ 
+    var url = 'http://query.yahooapis.com/v1/public/yql';
+    url += '?q=select * from yahoo.finance.quotes where symbol in (';
+    url += '"' + stocks + '"'; 
+    url += ')&env=store://datatables.org/alltableswithkeys&format=json';
+
+    http.get( url, function( response ) {
+        
+        var data = '';
+        
+        response.on( 'data', function( x ) { data += x; } );
+
+        response.on( 'end', function() {
+
+            var json = JSON.parse( data );
+
+            var text = 'Ivan, your top 5 stocks are: ';
+
+            for ( var i=0 ; i < stocks.length ; i++ ) {
+                var stock = json.query.results.quote[i];
+                text += stock.Name + ' at ' + stock.Ask
+                            + ' dollars, a change of '
+                            + stock.ChangeinPercent + '. ';
+            }
+            text += '.';
+        
+            output( text, context );
+        
+        } );
+        
+    } );
+    
+};
+    
+function output( text, context ) {
+
+    var response = {
+        outputSpeech: {
+            type: "PlainText",
+            text: text
+        },
+        card: {
+            type: "Simple",
+            title: "Stocks",
+            content: text
+        },
+        shouldEndSession: true
+    };
+    
+    context.succeed( { response: response } );
+    
+}
