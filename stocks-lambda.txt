@@ -1,6 +1,6 @@
 exports.handler = function( event, context ) {
     
-    var stocks = [ 'AAPL', 'GOOGL', 'TSLA', 'YHOO', 'BAC', 'PANW'];
+    var stocks = [ 'AAPL', 'GOOGL', 'TSLA', 'YHOO', 'BAC', 'PANW', 'AMZN'];
 
     var http = require( 'http' );
  
@@ -19,7 +19,7 @@ exports.handler = function( event, context ) {
 
             var json = JSON.parse( data );
 
-            var text = 'Ivan, your top 5 stocks are: ';
+            var text = 'Ivan, your top ' + stocks.length + ' holdings are: ';
 
             for ( var i=0 ; i < stocks.length ; i++ ) {
                 var stock = json.query.results.quote[i];
